@@ -17,3 +17,62 @@ Content-Type: application/json
   "name": "Uusi Henkilö",
   "number": "040-999999"
 }
+
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+  "name": "Arto Hellas",
+  "number": "040-123456"
+}
+
+###
+
+DELETE http://localhost:3001/api/persons/69df6e9622d022268d37aa64
+
+###
+
+GET http://localhost:3001/api/persons/123
+
+###
+
+PUT http://localhost:3001/api/persons/69df722e1844b68e3184d4da
+Content-Type: application/json
+
+{
+  "name": "Arto Hellas",
+  "number": "040-999999"
+}
+
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+  "name": "gg",
+  "number": "040-123456"
+}
+
+
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+  "name": "Testi Henkilö",
+  "number": "1234556"
+}
+
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+  "name": "Testi ukkeli",
+  "number": "09-1234556"
+}
