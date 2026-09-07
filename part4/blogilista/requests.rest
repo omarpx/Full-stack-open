@@ -66,3 +66,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc
   "url": "http://populate.com",
   "likes": 7
 }
+
+
+###
+
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "omar",
+  "name": "Omar",
+  "password": "salasana123"
+}
