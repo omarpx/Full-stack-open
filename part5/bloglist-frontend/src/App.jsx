@@ -60,8 +60,8 @@ const App = () => {
   }
 
   const updateBlog = (updatedBlog) => {
-  setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog))
-}
+    setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog))
+  }
 
   const removeBlog = (id) => {
     setBlogs(blogs.filter(blog => blog.id !== id))
