@@ -14,7 +14,7 @@ const Blog = ({ blog, updateBlog, removeBlog, user }) => {
   const handleLike = () => {
     const updatedBlog = {
       user: blog.user ? blog.user.id : null,
-      likes: blog.likes + 1,
+      likes: (blog.likes || 0) + 1,
       author: blog.author,
       title: blog.title,
       url: blog.url

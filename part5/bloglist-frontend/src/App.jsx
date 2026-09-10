@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
@@ -11,6 +11,7 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  const blogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -51,8 +52,10 @@ const App = () => {
   }
 
   const createBlog = async (blogObject) => {
+    blogFormRef.current.toggleVisibility()
     const returnedBlog = await blogService.create(blogObject)
-    setBlogs(blogs.concat(returnedBlog))
+    const blogs = await blogService.getAll()
+    setBlogs(blogs)
     setErrorMessage(`a new blog ${blogObject.title} by ${blogObject.author} added`)
     setTimeout(() => {
       setErrorMessage(null)
@@ -61,7 +64,8 @@ const App = () => {
 
   const updateBlog = async (id, updatedBlog) => {
     const returnedBlog = await blogService.update(id, updatedBlog)
-    setBlogs(blogs.map(blog => blog.id !== returnedBlog.id ? blog : returnedBlog))
+    const blogs = await blogService.getAll()
+    setBlogs(blogs)
   }
 
   const removeBlog = async (id) => {
@@ -102,10 +106,10 @@ const App = () => {
       <h2>blogs</h2>
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
-      <Togglable buttonLabel="create new blog">
+      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
         <BlogForm createBlog={createBlog} />
       </Togglable>
-      {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
+      {blogs.sort((a, b) => (b.likes || 0) - (a.likes || 0)).map(blog =>
         <Blog key={blog.id} blog={blog} updateBlog={updateBlog} removeBlog={removeBlog} user={user} />
       )}
     </div>
