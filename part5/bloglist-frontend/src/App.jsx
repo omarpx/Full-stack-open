@@ -1,7 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
-import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
+import { useState, useEffect } from 'react'
+import { Routes, Route, Link, Navigate, useMatch } from 'react-router-dom'
+import { AppBar, Toolbar, Button, Container, Alert } from '@mui/material'
+import BlogList from './components/BlogList'
+import LoginForm from './components/LoginForm'
+import CreateBlog from './components/CreateBlog'
+import BlogView from './components/BlogView'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -11,7 +14,7 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
-  const blogFormRef = useRef()
+  const [errorType, setErrorType] = useState('success')
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -38,6 +41,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch {
+      setErrorType('error')
       setErrorMessage('wrong username/password')
       setTimeout(() => {
         setErrorMessage(null)
@@ -52,10 +56,10 @@ const App = () => {
   }
 
   const createBlog = async (blogObject) => {
-    blogFormRef.current.toggleVisibility()
-    const returnedBlog = await blogService.create(blogObject)
-    const blogs = await blogService.getAll()
-    setBlogs(blogs)
+    await blogService.create(blogObject)
+    const updatedBlogs = await blogService.getAll()
+    setBlogs(updatedBlogs)
+    setErrorType('success')
     setErrorMessage(`a new blog ${blogObject.title} by ${blogObject.author} added`)
     setTimeout(() => {
       setErrorMessage(null)
@@ -63,9 +67,9 @@ const App = () => {
   }
 
   const updateBlog = async (id, updatedBlog) => {
-    const returnedBlog = await blogService.update(id, updatedBlog)
-    const blogs = await blogService.getAll()
-    setBlogs(blogs)
+    await blogService.update(id, updatedBlog)
+    const updatedBlogs = await blogService.getAll()
+    setBlogs(updatedBlogs)
   }
 
   const removeBlog = async (id) => {
@@ -73,46 +77,55 @@ const App = () => {
     setBlogs(blogs.filter(blog => blog.id !== id))
   }
 
-  if (user === null) {
-    return (
-      <div>
-        <h2>Log in to application</h2>
-        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-        <form onSubmit={handleLogin}>
-          <div>
-            username
-            <input
-              type="text"
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </div>
-          <div>
-            password
-            <input
-              type="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button type="submit">login</button>
-        </form>
-      </div>
-    )
-  }
+  const match = useMatch('/blogs/:id')
+  const blog = match
+    ? blogs.find(blog => blog.id === match.params.id)
+    : null
 
   return (
-    <div>
-      <h2>blogs</h2>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-      <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
-      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-        <BlogForm createBlog={createBlog} />
-      </Togglable>
-      {blogs.sort((a, b) => (b.likes || 0) - (a.likes || 0)).map(blog =>
-        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} removeBlog={removeBlog} user={user} />
-      )}
-    </div>
+    <Container>
+      <AppBar position="static">
+        <Toolbar>
+          <Button color="inherit" component={Link} to="/">blogs</Button>
+          {user && <Button color="inherit" component={Link} to="/create">create new blog</Button>}
+          {user
+            ? <span style={{ color: 'white', marginLeft: 'auto' }}>
+                {user.name} logged in
+                <Button color="inherit" onClick={handleLogout}>logout</Button>
+              </span>
+            : <Button color="inherit" component={Link} to="/login">login</Button>
+          }
+        </Toolbar>
+      </AppBar>
+
+      {errorMessage &&
+        <Alert severity={errorType} style={{ marginTop: 10, marginBottom: 10 }}>
+          {errorMessage}
+        </Alert>
+      }
+
+      <Routes>
+        <Route path="/" element={
+          <BlogList blogs={blogs} />
+        } />
+        <Route path="/login" element={
+          user ? <Navigate to="/" /> :
+          <LoginForm
+            handleLogin={handleLogin}
+            username={username}
+            setUsername={setUsername}
+            password={password}
+            setPassword={setPassword}
+          />
+        } />
+        <Route path="/create" element={
+          user ? <CreateBlog createBlog={createBlog} /> : <Navigate to="/login" />
+        } />
+        <Route path="/blogs/:id" element={
+          <BlogView blog={blog} updateBlog={updateBlog} removeBlog={removeBlog} user={user} />
+        } />
+      </Routes>
+    </Container>
   )
 }
 

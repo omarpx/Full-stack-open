@@ -78,3 +78,14 @@ Content-Type: application/json
   "name": "Omar",
   "password": "salasana123"
 }
+
+###
+
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "omar",
+  "name": "Omar",
+  "password": "salasana123"
+}
